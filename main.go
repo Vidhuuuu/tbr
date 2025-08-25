@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/Vidhuuuu/tbr/db"
@@ -12,6 +13,7 @@ import (
 func main() {
 	list := flag.Bool("list", false, "list tbr")
 	book := flag.String("add", "empty by empty", "add to tbr")
+	del := flag.String("del", "empty", "delete from storage")
 	flag.Parse()
 
 	dsn, err := db.PrepareDSN()
@@ -34,7 +36,27 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+
+		if len(books) == 0 {
+			fmt.Println("empty tbr")
+			return
+		}
 		utils.PrettyPrintBooks(books)
+		return
+	}
+
+	if *del != "empty" {
+		parts := strings.SplitSeq(*del, " ")
+		for p := range parts {
+			if p == "" {
+				continue
+			}
+			id, err := strconv.Atoi(p)
+			if err != nil {
+				panic(err)
+			}
+			db.DeleteBook(conn, id)
+		}
 		return
 	}
 
