@@ -42,4 +42,12 @@ func main() {
 	if err != nil {
 	    panic(err)
 	}
+
+	books, err := db.ListBooks(conn)
+	if err != nil {
+	    panic(err)
+	}
+	for _, b := range books {
+		fmt.Printf("[%d] %s by %s\n", b.ID, b.Title, b.Author)
+	}
 }
