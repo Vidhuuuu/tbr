@@ -48,8 +48,8 @@ func InitDB(db *sql.DB) error {
 	query := `
 	CREATE TABLE IF NOT EXISTS books (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		author TEXT NOT NULL,
 		title TEXT NOT NULL,
+		author TEXT NOT NULL,
 		added_at DATETIME DEFAULT CURRENT_TIMESTAMP
 	)`
 

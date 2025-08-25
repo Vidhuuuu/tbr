@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	title := flag.String("title", "empty-title", "Title of the book")
+	title := flag.String("title", "empty", "Title of the book")
 	author := flag.String("author", "anonymous", "Author of the book")
 	flag.Parse()
 
@@ -30,11 +30,16 @@ func main() {
 		panic(err)
 	}
 
-	var version string
-	err = conn.QueryRow("SELECT sqlite_version()").Scan(&version)
+	// var version string
+	// err = conn.QueryRow("SELECT sqlite_version()").Scan(&version)
+	// if err != nil {
+	//     panic(err)
+	// }
+	//
+	// fmt.Println("version:", version)
+
+	err = db.AddBook(conn, *author, *title)
 	if err != nil {
 	    panic(err)
 	}
-
-	fmt.Println("version:", version)
 }
