@@ -10,14 +10,6 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-type Book struct {
-	ID      int
-	Title   string
-	Author  string
-	AddedAt time.Time
-	Mode    int
-}
-
 func PrepareDSN() (string, error) {
 	stateDir := os.Getenv("XDG_STATE_HOME")
 	if stateDir == "" {
@@ -50,4 +42,17 @@ func OpenDB(dsn string) (*sql.DB, error) {
 	}
 
 	return db, nil
+}
+
+func InitDB(db *sql.DB) error {
+	query := `
+	CREATE TABLE IF NOT EXISTS books (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,
+		author TEXT NOT NULL,
+		title TEXT NOT NULL,
+		added_at DATETIME DEFAULT CURRENT_TIMESTAMP
+	)`
+
+	_, err := db.Exec(query)
+	return err
 }

@@ -19,14 +19,19 @@ func main() {
 		panic(err)
 	}
 
-	db, err := db.OpenDB(dsn)
+	conn, err := db.OpenDB(dsn)
 	if err != nil {
 	    panic(err)
 	}
-	defer db.Close()
+	defer conn.Close()
+
+
+	if err = db.InitDB(conn); err != nil {
+		panic(err)
+	}
 
 	var version string
-	err = db.QueryRow("SELECT sqlite_version()").Scan(&version)
+	err = conn.QueryRow("SELECT sqlite_version()").Scan(&version)
 	if err != nil {
 	    panic(err)
 	}
