@@ -11,9 +11,9 @@ type Book struct {
 	Title   string
 }
 
-func AddBook(db *sql.DB, author, title string) error {
-	query := `INSERT INTO books(author, title) VALUES (?, ?)`
-	_, err := db.Exec(query, author, title)
+func AddBook(db *sql.DB, title, author string) error {
+	query := `INSERT INTO books(title, author) VALUES (?, ?)`
+	_, err := db.Exec(query, title, author)
 	return err
 }
 
