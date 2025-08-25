@@ -1,8 +1,8 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -11,10 +11,7 @@ import (
 )
 
 func main() {
-	list := flag.Bool("list", false, "list tbr")
-	book := flag.String("add", "empty by empty", "add to tbr")
-	del := flag.String("del", "empty", "delete from storage")
-	flag.Parse()
+	args := os.Args[1:]
 
 	dsn, err := db.PrepareDSN()
 	if err != nil {
@@ -31,46 +28,48 @@ func main() {
 		panic(err)
 	}
 
-	if *list {
+	switch args[0] {
+	case "list":
 		books, err := db.ListBooks(conn)
 		if err != nil {
 			panic(err)
 		}
 
 		if len(books) == 0 {
-			fmt.Println("empty tbr")
+			fmt.Println("Empty TBR")
 			return
 		}
 		utils.PrettyPrintBooks(books)
-		return
-	}
+	case "add":
+		raw := strings.Join(args[1:], " ")
+		parts := strings.Split(raw, " by ")
+		if len(parts) != 2 {
+			panic(fmt.Errorf("inconsistent name: %s\n", raw))
+		}
 
-	if *del != "empty" {
-		parts := strings.SplitSeq(*del, " ")
-		for p := range parts {
-			if p == "" {
-				continue
-			}
-			id, err := strconv.Atoi(p)
+		title := parts[0]
+		author := parts[1]
+
+		if err = db.AddBook(conn, title, author); err != nil {
+			panic(err)
+		}
+		fmt.Printf("added %s by %s\n", title, author)
+	case "del":
+		if len(args) < 2 {
+			fmt.Println("Usage: tbr del <id> [id2, id3, ...]")
+			return
+		}
+		for _, a := range args[1:] {
+			id, err := strconv.Atoi(a)
 			if err != nil {
-				panic(err)
+				fmt.Printf("invalid id: %s\n", a)
+				continue
 			}
 			db.DeleteBook(conn, id)
 		}
+	default:
+		fmt.Println("unknown command:", args[0])
+		fmt.Println("Usage: tbr [list|add|del] ...")
 		return
 	}
-
-	parts := strings.Split(*book, " by ")
-	if len(parts) != 2 {
-		panic(fmt.Errorf("inconsistent name: %v\n", *book))
-	}
-
-	title := parts[0]
-	author := parts[1]
-
-	err = db.AddBook(conn, title, author)
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("added %s by %s\n", title, author)
 }
