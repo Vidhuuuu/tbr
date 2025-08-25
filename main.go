@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Vidhuuuu/tbr/db"
+	"github.com/Vidhuuuu/tbr/utils"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 
 	conn, err := db.OpenDB(dsn)
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 	defer conn.Close()
 
@@ -28,22 +29,12 @@ func main() {
 		panic(err)
 	}
 
-	// var version string
-	// err = conn.QueryRow("SELECT sqlite_version()").Scan(&version)
-	// if err != nil {
-	//     panic(err)
-	// }
-	//
-	// fmt.Println("version:", version)
-
 	if *list {
 		books, err := db.ListBooks(conn)
 		if err != nil {
 			panic(err)
 		}
-		for _, b := range books {
-			fmt.Printf("[%d] %s by %s\n", b.ID, b.Title, b.Author)
-		}
+		utils.PrettyPrintBooks(books)
 		return
 	}
 
@@ -54,10 +45,10 @@ func main() {
 
 	title := parts[0]
 	author := parts[1]
-	
+
 	err = db.AddBook(conn, title, author)
 	if err != nil {
-	    panic(err)
+		panic(err)
 	}
 	fmt.Printf("added %s by %s\n", title, author)
 }
